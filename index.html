@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список Смартфонів</title>
+
+    <link rel="stylesheet" href="./styles.css" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
+        integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
+        integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.2.0/uuid.min.js"></script>
+</head>
+
+<body>
+    <h1 class="first">Список cмартфонів</h1>
+
+    <div class="header">
+        <button id="sort-by-price">Сортувати за ціною</button>
+        <button id="sort-by-brand">Сортувати за брендом</button>
+
+        <input type="text" id="search-input" placeholder="Пошук за брендом або моделлю">
+        <button id="search-button">Пошук</button>
+        <button id="cancel-search-button">Скасувати пошук</button>
+    </div>
+
+    <div id="phones-list"></div>
+
+    <p id="total-price">Загальна ціна: $<span id="total-amount">0</span></p>
+
+    <script>
+        class Smartphone {
+            constructor(brand, model, price, color, image) {
+                this.brand = brand;
+                this.model = model;
+                this.price = price;
+                this.color = color;
+                this.image = image;
+            }
+        }
+
+        const smartphonesData = [
+            new Smartphone('Samsung', 'Galaxy S21', 800, 'Black', './src/images/samsung.jpg'),
+            new Smartphone('Apple', 'iPhone 13', 1000, 'Silver', './src/images/iphone.jpg'),
+            new Smartphone('Google', 'Pixel 6', 750, 'White', './src/images/google.webp'),
+            new Smartphone('Xiaomi', 'Redmi 8A', 900, 'Red', './src/images/xiaomi.jpg'),
+            new Smartphone('Honor', 'Magic', 500, 'Green', './src/images/honor.jpg'),
+            new Smartphone('Poco', 'X3', 200, 'Blue', './src/images/poco.jpg'),
+            new Smartphone('Huawei', 'Nova 10', 700, 'Black', './src/images/huawei.jpg')
+        ];
+
+        let filteredSmartphones = smartphonesData;
+
+        function renderSmartphones(smartphones) {
+            const phonesList = document.getElementById('phones-list');
+            phonesList.innerHTML = '';
+
+            smartphones.forEach(phone => {
+                const phoneItem = document.createElement('div');
+                phoneItem.classList.add('phone-item');
+                phoneItem.innerHTML = `
+                    <img src="${phone.image}" alt="${phone.brand} ${phone.model}" width="200">
+                    <p>Бренд: ${phone.brand}</p>
+                    <p>Модель: ${phone.model}</p>
+                    <p>Ціна: $${phone.price}</p>
+                `;
+                phonesList.appendChild(phoneItem);
+            });
+            filteredSmartphones = smartphones;
+        }
+
+        renderSmartphones(filteredSmartphones);
+
+        const cancelSearchButton = document.getElementById("cancel-search-button");
+
+        cancelSearchButton.addEventListener("click", () => {
+            renderSmartphones(filteredSmartphones);
+            calculateTotalPrice();
+            document.getElementById('search-input').value = "";
+        });
+
+
+        document.getElementById('sort-by-price').addEventListener('click', () => {
+            const sortedPhones = [...filteredSmartphones].sort((a, b) => a.price - b.price);
+            renderSmartphones(sortedPhones);
+        });
+
+        document.getElementById('sort-by-brand').addEventListener('click', () => {
+            const sortedPhones = [...filteredSmartphones].sort((a, b) => a.brand.localeCompare(b.brand));
+            renderSmartphones(sortedPhones);
+        });
+
+        document.getElementById('search-button').addEventListener('click', () => {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filteredPhones = filteredSmartphones.filter(phone =>
+                phone.brand.toLowerCase().includes(searchTerm) ||
+                phone.model.toLowerCase().includes(searchTerm)
+            );
+            renderSmartphones(filteredPhones);
+
+            calculateTotalPrice();
+        });
+
+        cancelSearchButton.addEventListener("click", () => {
+            renderSmartphones(smartphonesData);
+            calculateTotalPrice();
+            document.getElementById('search-input').value = "";
+        });
+
+
+        function calculateTotalPrice() {
+            const totalAmount = filteredSmartphones.reduce((total, phone) => total + phone.price, 0);
+            document.getElementById('total-amount').textContent = totalAmount;
+        }
+
+        calculateTotalPrice();
+    </script>
+</body>
+
+</html>
