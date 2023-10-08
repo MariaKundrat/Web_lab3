@@ -15,9 +15,33 @@
 <body>
     <h1 class="first">Список cмартфонів</h1>
 
+    <form id="create-form">
+        <label for="brand">Бренд:</label>
+        <input type="text" id="brand" required>
+        <label for="model">Модель:</label>
+        <input type="text" id="model" required>
+        <label for="price">Ціна:</label>
+        <input type="number" id="price" required>
+        <button class="submit" type="submit">Зберегти</button>
+        <button class="submit-cancel" id="cancel-create-button">Скасувати</button>
+    </form>
+
+    <div id="edit-form" style="display: none;">
+        <label for="edit-brand">Бренд:</label>
+        <input type="text" id="edit-brand">
+        <label for="edit-model">Модель:</label>
+        <input type="text" id="edit-model">
+        <label for="edit-price">Ціна:</label>
+        <input type="number" id="edit-price">
+        <button id="save-button">Зберегти</button>
+        <button id="cancel-button">Скасувати</button>
+    </div>    
+
     <div class="header">
         <button id="sort-by-price">Сортувати за ціною</button>
         <button id="sort-by-brand">Сортувати за брендом</button>
+        <button id="create-button">Створити</button>
+        <button id="edit-button">Редагувати</button>
 
         <input type="text" id="search-input" placeholder="Пошук за брендом або моделлю">
         <button id="search-button">Пошук</button>
