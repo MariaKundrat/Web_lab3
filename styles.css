@@ -1,0 +1,98 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+.first {
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+.header {
+    margin-left: 130px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #36566ac8;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+#search-input {
+    border-radius: 10px;
+    border: 1px solid #373839;
+}
+
+#sort-by-price {
+    border-radius: 20px;
+    margin-right: 20px;
+}
+
+#sort-by-brand {
+    border-radius: 20px;
+    margin-right: 15px;
+    margin-right: 285px;
+}
+
+.button1 {
+    margin-right: 20px;
+}
+
+#search-input {
+    width: 265px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    margin: 10px;
+}
+
+#search-button {
+    border-radius: 20px;
+    margin-right: 5px;
+}
+
+#cancel-search-button {
+    border-radius: 20px;
+}
+
+#phones-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.phone-item {
+    width: 300px;
+    margin: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+}
+
+.phone-item img {
+    max-width: 100%;
+    height: auto;
+}
+
+#total-price {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
+#total-amount {
+    font-weight: bold;
+}
