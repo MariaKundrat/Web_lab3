@@ -1,55 +1,82 @@
-import {getAllsmartphones, postsmartphone, updatesmartphone } from "./api.js";
-
-const submitButton = document.getElementById("submit_button");
-const findButton = document.getElementById("find_button");
 const cancelFindButton = document.getElementById("cancel_find_button");
 const findInput = document.getElementById("find_input");
 
 let smartphones = [];
 
-const onEditItem = async (e) => {
-    const itemId = e.target.id.replace(EDIT_BUTTON_PREFIX, "");
+class Smartphone {
+    constructor(brand, model, price, color, image) {
+        this.brand = brand;
+        this.model = model;
+        this.price = price;
+        this.color = color;
+        this.image = image;
+    }
+}
 
-    await updatesmartphone(itemId, getInputValues())
+const smartphonesData = [
+    new Smartphone('Samsung', 'Galaxy S21', 800, 'Black', './src/images/samsung.jpg'),
+    new Smartphone('Apple', 'iPhone 13', 1000, 'Silver', './src/images/iphone.jpg'),
+    new Smartphone('Google', 'Pixel 6', 750, 'White', './src/images/google.webp'),
+    new Smartphone('Xiaomi', 'Redmi 8A', 900, 'Red', './src/images/xiaomi.jpg'),
+    new Smartphone('Honor', 'Magic', 500, 'Green', './src/images/honor.jpg'),
+    new Smartphone('Poco', 'X3', 200, 'Blue', './src/images/poco.jpg'),
+    new Smartphone('Huawei', 'Nova 10', 700, 'Black', './src/images/huawei.jpg')
+];
 
-    clearInputs();
+let filteredSmartphones = smartphonesData;
 
-    refetchAllsmartphones();
-};
+function renderSmartphones(smartphones) {
+    const phonesList = document.getElementById('phones-list');
+    phonesList.innerHTML = '';
 
-export const refetchAllsmartphones = async () => {
-    const allsmartphones = await getAllsmartphones();
+    smartphones.forEach(phone => {
+        const phoneItem = document.createElement('div');
+        phoneItem.classList.add('phone-item');
+        phoneItem.innerHTML = `
+            <img src="${phone.image}" alt="${phone.brand} ${phone.model}" width="200">
+            <p>Бренд: ${phone.brand}</p>
+            <p>Модель: ${phone.model}</p>
+            <p>Ціна: $${phone.price}</p>
+        `;
+        phonesList.appendChild(phoneItem);
+    });
+    filteredSmartphones = smartphones;
+}
 
-    smartphones = allsmartphones;
+renderSmartphones(filteredSmartphones);
 
-    renderItemsList(smartphones, onEditItem, onRemoveItem);
-};
+const cancelSearchButton = document.getElementById("cancel-search-button");
 
-submitButton.addEventListener("click", (event) => {
-    event.preventDefault();
-
-    const { title, description } = getInputValues();
-
-    clearInputs();
-
-    postsmartphone({
-        title,
-        description,
-    }).then(refetchAllsmartphones);
+cancelSearchButton.addEventListener("click", () => {
+    renderSmartphones(smartphonesData);
+    calculateTotalPrice();
+    document.getElementById('search-input').value = "";
 });
 
-findButton.addEventListener("click", () => {
-    const foundsmartphones = smartphones.filter(
-        (smartphone) => smartphone.title.search(findInput.value) !== -1
+document.getElementById('sort-by-price').addEventListener('click', () => {
+    const sortedPhones = [...filteredSmartphones].sort((a, b) => a.price - b.price);
+    renderSmartphones(sortedPhones);
+});
+
+document.getElementById('sort-by-brand').addEventListener('click', () => {
+    const sortedPhones = [...filteredSmartphones].sort((a, b) => a.brand.localeCompare(b.brand));
+    renderSmartphones(sortedPhones);
+});
+
+document.getElementById('search-button').addEventListener('click', () => {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const filteredPhones = filteredSmartphones.filter(phone =>
+        phone.brand.toLowerCase().includes(searchTerm) ||
+        phone.model.toLowerCase().includes(searchTerm)
     );
+    renderSmartphones(filteredPhones);
 
-    renderItemsList(foundsmartphones, onEditItem, onRemoveItem);
+    calculateTotalPrice();
 });
 
-cancelFindButton.addEventListener("click", () => {
-    renderItemsList(smartphones, onEditItem, onRemoveItem);
+function calculateTotalPrice() {
+    const totalAmount = filteredSmartphones.reduce((total, phone) => total + phone.price, 0);
+    document.getElementById('total-amount').textContent = totalAmount;
+}
 
-    findInput.value = "";
-});
-
-refetchAllsmartphones()
+calculateTotalPrice();
