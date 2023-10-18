@@ -4,23 +4,22 @@ const findInput = document.getElementById("find_input");
 let smartphones = [];
 
 class Smartphone {
-    constructor(brand, model, price, color, image) {
-        this.brand = brand;
-        this.model = model;
-        this.price = price;
-        this.color = color;
-        this.image = image;
+    constructor(phoneData) {
+        this.brand = phoneData.brand;
+        this.model = phoneData.model;
+        this.price = phoneData.price;
+        this.image = phoneData.image;
     }
 }
 
 const smartphonesData = [
-    new Smartphone('Samsung', 'Galaxy S21', 800, 'Black', './src/images/samsung.jpg'),
-    new Smartphone('Apple', 'iPhone 13', 1000, 'Silver', './src/images/iphone.jpg'),
-    new Smartphone('Google', 'Pixel 6', 750, 'White', './src/images/google.webp'),
-    new Smartphone('Xiaomi', 'Redmi 8A', 900, 'Red', './src/images/xiaomi.jpg'),
-    new Smartphone('Honor', 'Magic', 500, 'Green', './src/images/honor.jpg'),
-    new Smartphone('Poco', 'X3', 200, 'Blue', './src/images/poco.jpg'),
-    new Smartphone('Huawei', 'Nova 10', 700, 'Black', './src/images/huawei.jpg')
+    new Smartphone({ brand: 'Samsung', model: 'Galaxy S21', price: 800, image: './src/images/samsung.jpg' }),
+    new Smartphone({ brand: 'Apple', model: 'iPhone 13', price: 1000, image: './src/images/iphone.jpg' }),
+    new Smartphone({ brand: 'Google', model: 'Pixel 6', price: 750, image: './src/images/google.webp' }),
+    new Smartphone({ brand: 'Xiaomi', model: 'Redmi 8A', price: 900, image: './src/images/xiaomi.jpg' }),
+    new Smartphone({ brand: 'Honor', model: 'Magic', price: 500, image: './src/images/honor.jpg' }),
+    new Smartphone({ brand: 'Poco', model: 'X3', price: 200, image: './src/images/poco.jpg' }),
+    new Smartphone({ brand: 'Huawei', model: 'Nova 10', price: 700, image: './src/images/huawei.jpg' })
 ];
 
 let filteredSmartphones = smartphonesData;
@@ -29,7 +28,7 @@ function renderSmartphones(smartphones) {
     const phonesList = document.getElementById('phones-list');
     phonesList.innerHTML = '';
 
-    smartphones.forEach((phone, index) => {
+    smartphones.forEach(phone => {
         const phoneItem = document.createElement('div');
         phoneItem.classList.add('phone-item');
         phoneItem.innerHTML = `
@@ -37,26 +36,10 @@ function renderSmartphones(smartphones) {
             <p>Бренд: ${phone.brand}</p>
             <p>Модель: ${phone.model}</p>
             <p>Ціна: $${phone.price}</p>
-            <button class="edit-button" data-index="${index}">Редагувати</button>
         `;
         phonesList.appendChild(phoneItem);
     });
-
-    phonesList.querySelectorAll('.edit-button').forEach((editButton) => {
-        editButton.addEventListener('click', () => {
-            const index = editButton.getAttribute('data-index');
-            openEditModal(smartphones[index]);
-        });
-    });
-}
-
-function openEditModal(phone) {
-    const editForm = document.getElementById('edit-form');
-    editForm.style.display = 'block';
-
-    document.getElementById('edit-brand').value = phone.brand;
-    document.getElementById('edit-model').value = phone.model;
-    document.getElementById('edit-price').value = phone.price;
+    filteredSmartphones = smartphones;
 }
 
 renderSmartphones(filteredSmartphones);
@@ -91,52 +74,144 @@ document.getElementById('search-button').addEventListener('click', () => {
 });
 
 function calculateTotalPrice() {
-    const totalAmount = filteredSmartphones.reduce((total, phone) => total + phone.price, 0);
+    const totalAmount = filteredSmartphones.reduce((total, phone) => total + +phone.price, 0);
     document.getElementById('total-amount').textContent = totalAmount;
 }
 
 calculateTotalPrice();
 
-const createButton = document.getElementById("create-button");
-const createForm = document.getElementById("create-form");
+function openCreateModal() {
+    const createModal = document.getElementById("create-modal");
+    createModal.style.display = "block";
+}
 
-createButton.addEventListener("click", () => {
-    createForm.style.display = "block";
-});
+document.getElementById("open-create-modal-button").addEventListener("click", openCreateModal);
+document.getElementById("create-button").addEventListener("click", createSmartphone);
 
-const cancelCreateButton = document.getElementById("cancel-create-button");
+function createSmartphone() {
+    const createForm = document.getElementById("create-modal-form");
+    const formData = new FormData(createForm);
 
-cancelCreateButton.addEventListener("click", () => {
-    createForm.style.display = "none";
-});
+    console.log('Form data:', formData);
+    const phoneData = {};
+    const entries = formData.entries();
 
-createForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const brand = document.getElementById("brand").value;
-    const model = document.getElementById("model").value;
-    const price = parseFloat(document.getElementById("price").value);
+    for (const pair of entries) {
+        const [name, value] = pair;
+        phoneData[name] = value;
+    }
+    console.log(phoneData);
+    
+    const brand = formData.get("brand").trim();
+    const model = formData.get("model").trim();
+    const price = formData.get("price").trim();
+    const image = formData.get("image").trim();
 
-    const newSmartphone = new Smartphone(brand, model, price);
+    if (!brand || !model || !price || !image) {
+        alert("Заповніть всі поля форми.");
+        return;
+    }
 
+    if (price <= 0) {
+        alert("Неправильна ціна, введіть правильне число.");
+        return;
+    }
+
+    const newSmartphone = new Smartphone(phoneData);
     smartphonesData.push(newSmartphone);
 
-    createForm.reset();
+    document.getElementById("brand").value = "";
+    document.getElementById("model").value = "";
+    document.getElementById("price").value = "";
+    document.getElementById("image").value = "";
 
-    createForm.style.display = "none";
+    closeModalCreate();
 
     renderSmartphones(smartphonesData);
+
     calculateTotalPrice();
+}
+
+document.getElementById("close-create-modal").addEventListener("click", () => {
+    closeModalCreate("create-modal");
 });
 
-const editForm = document.getElementById("edit-form");
-const editButton = document.getElementById("edit-button");
-const cancelButton = document.getElementById("cancel-button");
+function closeModalCreate() {
+    const createModal = document.getElementById("create-modal");
+    createModal.style.display = "none";
+}
 
-document.getElementById('edit-button').addEventListener('click', () => {
+let isEditingMode = false;
+
+document.getElementById('open-edit-modal-button').addEventListener('click', () => {
+    isEditingMode = !isEditingMode;
+    const editButtons = document.querySelectorAll('.edit-button');
+    const deleteButtons = document.querySelectorAll('.delete-button');
+
+    if (isEditingMode) {
+        editButtons.forEach(button => {
+            button.classList.add('show-buttons');
+            button.classList.remove('hide-buttons');
+        });
+        deleteButtons.forEach(button => {
+            button.classList.add('show-buttons');
+            button.classList.remove('hide-buttons');
+        });
+    } else {
+        editButtons.forEach(button => {
+            button.classList.remove('show-buttons');
+            button.classList.add('hide-buttons');
+        });
+        deleteButtons.forEach(button => {
+            button.classList.remove('show-buttons');
+            button.classList.add('hide-buttons');
+        });
+    }
+});
+
+
+function openEditModal(smartphone) {
+    const editModal = document.getElementById('edit-modal');
+    const editBrandInput = document.getElementById('edit-brand');
+    const editModelInput = document.getElementById('edit-model');
+    const editPriceInput = document.getElementById('edit-price');
+    const editImageInput = document.getElementById('edit-image');
+    const saveEditButton = document.getElementById('save-edit-button');
+
+    editBrandInput.value = smartphone.brand;
+    editModelInput.value = smartphone.model;
+    editPriceInput.value = smartphone.price;
+    editImageInput.value = smartphone.image;
+
+    editModal.style.display = 'block';
+
+    saveEditButton.addEventListener('click', () => {
+        smartphone.brand = editBrandInput.value;
+        smartphone.model = editModelInput.value;
+        smartphone.price = parseFloat(editPriceInput.value);
+        smartphone.image = editImageInput.value;
+
+        renderSmartphones(smartphonesData);
+        calculateTotalPrice();
+
+        editModal.style.display = 'none';
+    });
+}
+
+function editSmartphone(smartphone, updatedData) {
+    smartphone.brand = updatedData.brand;
+    smartphone.model = updatedData.model;
+    smartphone.price = updatedData.price;
+    smartphone.image = updatedData.image;
+    renderSmartphones(smartphonesData);
+    calculateTotalPrice();
+}
+
+function renderSmartphones(smartphones) {
     const phonesList = document.getElementById('phones-list');
     phonesList.innerHTML = '';
 
-    smartphonesData.forEach((phone, index) => {
+    smartphones.forEach((phone, index) => {
         const phoneItem = document.createElement('div');
         phoneItem.classList.add('phone-item');
         phoneItem.innerHTML = `
@@ -145,50 +220,70 @@ document.getElementById('edit-button').addEventListener('click', () => {
             <p>Модель: ${phone.model}</p>
             <p>Ціна: $${phone.price}</p>
             <button class="edit-button" data-index="${index}">Редагувати</button>
+            <button class="delete-button" data-index="${index}">Видалити</button>
         `;
         phonesList.appendChild(phoneItem);
-    });
 
-    phonesList.querySelectorAll('.edit-button').forEach((editButton) => {
+        const deleteButton = phoneItem.querySelector('.delete-button');
+        deleteButton.addEventListener("click", () => {
+            openConfirmDeleteModal(smartphones[index]);
+        });
+
+        const editButton = phoneItem.querySelector('.edit-button');
         editButton.addEventListener('click', () => {
-            const index = editButton.getAttribute('data-index');
+            openEditModal(smartphones[index]);
         });
     });
+
+    closeModalEdit();
+}
+
+document.getElementById("close-edit-modal").addEventListener("click", () => {
+    closeModal("edit-modal");
 });
 
-createButton.addEventListener("click", () => {
-    createForm.style.display = "block";
-    editForm.style.display = "none";
+function closeModalEdit() {
+    const editModalEdit = document.getElementById("edit-modal");
+    editModalEdit.style.display = "none";
+}
+
+function deleteSmartphone(phone) {
+    const index = smartphonesData.findIndex(item => item === phone);
+
+    if (index !== -1) {
+        smartphonesData.splice(index, 1);
+        renderSmartphones(smartphonesData);
+        calculateTotalPrice();
+    }
+}
+
+function openConfirmDeleteModal(smartphone) {
+    const confirmDeleteModal = document.getElementById('confirm-delete-modal');
+    const confirmDeleteMessage = document.getElementById('confirm-delete-message');
+    const confirmDeleteButton = document.getElementById('confirm-delete-button');
+    const cancelDeleteButton = document.getElementById('cancel-delete-button');
+
+    confirmDeleteMessage.textContent = `Ви впевнені, що хочете остаточно видалити смартфон ${smartphone.brand} ${smartphone.model}?`;
+
+    confirmDeleteModal.style.display = 'block';
+
+    confirmDeleteButton.addEventListener('click', () => {
+        deleteSmartphone(smartphone);
+        confirmDeleteModal.style.display = 'none';
+    });
+
+    cancelDeleteButton.addEventListener('click', () => {
+        confirmDeleteModal.style.display = 'none';
+    });
+
+    closeModal();
+}
+
+document.getElementById("close-confirm-delete-modal").addEventListener("click", () => {
+    closeModal("confirm-delete-modal");
 });
 
-createForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const brand = document.getElementById("brand").value;
-    const model = document.getElementById("model").value;
-    const price = parseFloat(document.getElementById("price").value);
-    const color = document.getElementById("color").value;
-    const image = document.getElementById("image").value;
-
-    const newSmartphone = new Smartphone(brand, model, price, color, image);
-
-    smartphonesData.push(newSmartphone);
-
-    createForm.reset();
-
-    renderSmartphones(filteredSmartphones);
-    calculateTotalPrice();
-});
-
-editButton.addEventListener("click", () => {
-    createForm.style.display = "none";
-    editForm.style.display = "block";
-});
-
-editForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-});
-
-cancelButton.addEventListener("click", () => {
-    createForm.style.display = "none";
-    editForm.style.display = "none";
-});
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'none';
+}
