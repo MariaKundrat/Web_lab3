@@ -18,11 +18,66 @@
     <div class="header">
         <button id="sort-by-price">Сортувати за ціною</button>
         <button id="sort-by-brand">Сортувати за брендом</button>
+        <button id="open-create-modal-button">Додати товар</button>
+        <button id="open-edit-modal-button">Редагувати товар</button>
 
         <input type="text" id="search-input" placeholder="Пошук за брендом або моделлю">
         <button id="search-button">Пошук</button>
         <button id="cancel-search-button">Скасувати пошук</button>
     </div>
+
+    <div id="create-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-create-modal" class="close">&times;</span>
+            <h2>Додати продукт</h2>
+            <form id="create-modal-form">
+                <label for="create-brand">Бренд:</label>
+                <input type="text" name="brand" id="brand" required>
+                <br>
+                <label for="create-model">Модель:</label>
+                <input type="text" name="model" id="model" required>
+                <br>
+                <label for="create-price">Ціна:</label>
+                <input type="number" name="price" id="price" required>
+                <br>
+                <label for="create-image">URL зображення:</label>
+                <input type="url" name="image" id="image" required>
+                <br>
+                <button type="submit" id="create-button">Зберегти</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-edit-modal" class="close">&times;</span>
+            <h2>Редагувати смартфон</h2>
+            <form id="edit-modal-form">
+                <label for="edit-brand">Бренд:</label>
+                <input type="text" id="edit-brand" required>
+                <br>
+                <label for="edit-model">Модель:</label>
+                <input type="text" id="edit-model" required>
+                <br>
+                <label for="edit-price">Ціна:</label>
+                <input type="number" id="edit-price" required>
+                <br>
+                <label for="edit-image">Зображення:</label>
+                <input type="url" id="edit-image" required>
+                <br>
+                <button id="save-edit-button">Зберегти</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="confirm-delete-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-confirm-delete-modal" class="close">&times;</span>
+            <p id="confirm-delete-message">Ви впевнені, що хочете остаточно видалити цей смартфон?</p>
+            <button id="confirm-delete-button">Остаточно видалити</button>
+            <button id="cancel-delete-button">Скасувати</button>
+        </div>
+    </div>    
 
     <div id="phones-list"></div>
 
