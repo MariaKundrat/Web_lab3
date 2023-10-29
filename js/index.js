@@ -1,3 +1,5 @@
+import { initializeServerWithData } from "./api.js";
+
 const cancelFindButton = document.getElementById("cancel_find_button");
 const findInput = document.getElementById("find_input");
 
@@ -11,20 +13,11 @@ class Smartphone {
         this.image = phoneData.image;
     }
 }
+console.log("efc");
+const response = await initializeServerWithData();
+console.log('smartphonesData: ', response);
 
-const smartphonesData = [
-    new Smartphone({ brand: 'Samsung', model: 'Galaxy S21', price: 800, image: './src/images/samsung.jpg' }),
-    new Smartphone({ brand: 'Apple', model: 'iPhone 13', price: 1000, image: './src/images/iphone.jpg' }),
-    new Smartphone({ brand: 'Google', model: 'Pixel 6', price: 750, image: './src/images/google.webp' }),
-    new Smartphone({ brand: 'Xiaomi', model: 'Redmi 8A', price: 900, image: './src/images/xiaomi.jpg' }),
-    new Smartphone({ brand: 'Honor', model: 'Magic', price: 500, image: './src/images/honor.jpg' }),
-    new Smartphone({ brand: 'Poco', model: 'X3', price: 200, image: './src/images/poco.jpg' }),
-    new Smartphone({ brand: 'Huawei', model: 'Nova 10', price: 700, image: './src/images/huawei.jpg' })
-];
-
-let filteredSmartphones = smartphonesData;
-
-function renderSmartphones(smartphones) {
+function renderApiResponse(smartphones) {
     const phonesList = document.getElementById('phones-list');
     phonesList.innerHTML = '';
 
@@ -39,32 +32,32 @@ function renderSmartphones(smartphones) {
         `;
         phonesList.appendChild(phoneItem);
     });
-    filteredSmartphones = smartphones;
+    response.data = smartphones;
 }
 
-renderSmartphones(filteredSmartphones);
+renderApiResponse(response.data);
 
 const cancelSearchButton = document.getElementById("cancel-search-button");
 
 cancelSearchButton.addEventListener("click", () => {
-    renderSmartphones(smartphonesData);
+    renderSmartphones(response.data);
     calculateTotalPrice();
     document.getElementById('search-input').value = "";
 });
 
 document.getElementById('sort-by-price').addEventListener('click', () => {
-    const sortedPhones = [...filteredSmartphones].sort((a, b) => a.price - b.price);
+    const sortedPhones = [...response.data].sort((a, b) => a.price - b.price);
     renderSmartphones(sortedPhones);
 });
 
 document.getElementById('sort-by-brand').addEventListener('click', () => {
-    const sortedPhones = [...filteredSmartphones].sort((a, b) => a.brand.localeCompare(b.brand));
+    const sortedPhones = [...response.data].sort((a, b) => a.brand.localeCompare(b.brand));
     renderSmartphones(sortedPhones);
 });
 
 document.getElementById('search-button').addEventListener('click', () => {
     const searchTerm = document.getElementById('search-input').value.toLowerCase();
-    const filteredPhones = filteredSmartphones.filter(phone =>
+    const filteredPhones = response.data.filter(phone =>
         phone.brand.toLowerCase().includes(searchTerm) ||
         phone.model.toLowerCase().includes(searchTerm)
     );
@@ -74,7 +67,7 @@ document.getElementById('search-button').addEventListener('click', () => {
 });
 
 function calculateTotalPrice() {
-    const totalAmount = filteredSmartphones.reduce((total, phone) => total + +phone.price, 0);
+    const totalAmount = response.data.reduce((total, phone) => total + +phone.price, 0);
     document.getElementById('total-amount').textContent = totalAmount;
 }
 

@@ -1,11 +1,9 @@
 {
-    "name": "first-live-coding",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
+    "type": "module",
     "scripts": {
-        "start": "npx browser-sync start --server --files ."
+        "start": "node index.js"
     },
-    "author": "Nazar Gorokhivskiy",
-    "license": "ISC"
+    "devDependencies": {
+        "http-server": "^14.1.1"
+    }
 }

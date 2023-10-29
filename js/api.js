@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5500/api";
+const BASE_URL = "http://localhost:3000/api";
 const RESOURSE_URL = `${BASE_URL}/phone`;
 
 const baseRequest = async ({ urlPath = "", method = "GET", body = null }) => {
@@ -34,17 +34,17 @@ export const updatePhone = (id, body) =>
 export const deletePhone = (id) =>
     baseRequest({ urlPath: `/${id}`, method: "DELETE" });
 
-async function initializeServerWithData() {
-    const response = await fetch('http://localhost:5500/api/init', {
-        method: 'POST',
-    });
+export const initializeServerWithData = async () => {
+    try {
+        const response = await fetch('http://localhost:3000/api/smartphones', {
+            method: 'GET',
+        });
 
-    if (response.ok) {
         console.log('Сервер ініціалізовано даними');
-        displaySmartphones();
-    } else {
-        console.error('Помилка ініціалізації сервера');
+        const json = await response.json(); 
+
+        return json;
+    } catch (error) {
+        console.log('Помилка ініціалізації сервера', error);
     }
 }
-
-initializeServerWithData();
