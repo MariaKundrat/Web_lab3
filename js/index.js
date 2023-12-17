@@ -1,4 +1,4 @@
-import { initializeServerWithData } from "./api.js";
+import { initializeServerWithData, postPhone } from "./api.js";
 
 const cancelFindButton = document.getElementById("cancel_find_button");
 const findInput = document.getElementById("find_input");
@@ -13,7 +13,6 @@ class Smartphone {
         this.image = phoneData.image;
     }
 }
-console.log("efc");
 const response = await initializeServerWithData();
 console.log('smartphonesData: ', response);
 
@@ -32,7 +31,6 @@ function renderApiResponse(smartphones) {
         `;
         phonesList.appendChild(phoneItem);
     });
-    response.data = smartphones;
 }
 
 renderApiResponse(response.data);
@@ -81,11 +79,10 @@ function openCreateModal() {
 document.getElementById("open-create-modal-button").addEventListener("click", openCreateModal);
 document.getElementById("create-button").addEventListener("click", createSmartphone);
 
-function createSmartphone() {
+async function createSmartphone() {
     const createForm = document.getElementById("create-modal-form");
     const formData = new FormData(createForm);
 
-    console.log('Form data:', formData);
     const phoneData = {};
     const entries = formData.entries();
 
@@ -93,8 +90,7 @@ function createSmartphone() {
         const [name, value] = pair;
         phoneData[name] = value;
     }
-    console.log(phoneData);
-    
+
     const brand = formData.get("brand").trim();
     const model = formData.get("model").trim();
     const price = formData.get("price").trim();
@@ -110,8 +106,8 @@ function createSmartphone() {
         return;
     }
 
-    const newSmartphone = new Smartphone(phoneData);
-    smartphonesData.push(newSmartphone);
+    postPhone(phoneData);
+    console.log("response log", response);
 
     document.getElementById("brand").value = "";
     document.getElementById("model").value = "";
@@ -119,8 +115,8 @@ function createSmartphone() {
     document.getElementById("image").value = "";
 
     closeModalCreate();
-
-    renderSmartphones(smartphonesData);
+    const response = await initializeServerWithData();
+    renderApiResponse(response);
 
     calculateTotalPrice();
 }
@@ -162,8 +158,7 @@ document.getElementById('open-edit-modal-button').addEventListener('click', () =
     }
 });
 
-
-function openEditModal(smartphone) {
+async function openEditModal(smartphone) {
     const editModal = document.getElementById('edit-modal');
     const editBrandInput = document.getElementById('edit-brand');
     const editModelInput = document.getElementById('edit-model');
@@ -178,26 +173,21 @@ function openEditModal(smartphone) {
 
     editModal.style.display = 'block';
 
-    saveEditButton.addEventListener('click', () => {
-        smartphone.brand = editBrandInput.value;
-        smartphone.model = editModelInput.value;
-        smartphone.price = parseFloat(editPriceInput.value);
-        smartphone.image = editImageInput.value;
+    saveEditButton.addEventListener('click', async () => {
+        const smartphoneUpdate = {
+            brand: editBrandInput.value,
+            model: editModelInput.value,
+            price: parseFloat(editPriceInput.value),
+            image: editImageInput.value
+        }
 
-        renderSmartphones(smartphonesData);
+        updatePhone(smartphone.id, smartphoneUpdate);
+        const response = await initializeServerWithData();
+        renderApiResponse(response);
         calculateTotalPrice();
 
         editModal.style.display = 'none';
     });
-}
-
-function editSmartphone(smartphone, updatedData) {
-    smartphone.brand = updatedData.brand;
-    smartphone.model = updatedData.model;
-    smartphone.price = updatedData.price;
-    smartphone.image = updatedData.image;
-    renderSmartphones(smartphonesData);
-    calculateTotalPrice();
 }
 
 function renderSmartphones(smartphones) {
@@ -240,14 +230,11 @@ function closeModalEdit() {
     editModalEdit.style.display = "none";
 }
 
-function deleteSmartphone(phone) {
-    const index = smartphonesData.findIndex(item => item === phone);
-
-    if (index !== -1) {
-        smartphonesData.splice(index, 1);
-        renderSmartphones(smartphonesData);
-        calculateTotalPrice();
-    }
+async function deleteSmartphone(smartphone) {
+    deletePhone(smartphone.id);
+    const response = await initializeServerWithData();
+    renderApiResponse(response);
+    calculateTotalPrice();
 }
 
 function openConfirmDeleteModal(smartphone) {
@@ -260,16 +247,16 @@ function openConfirmDeleteModal(smartphone) {
 
     confirmDeleteModal.style.display = 'block';
 
-    confirmDeleteButton.addEventListener('click', () => {
-        deleteSmartphone(smartphone);
+    confirmDeleteButton.addEventListener('click', async () => {
+        deletePhone(smartphone);
+        const response = await initializeServerWithData();
+        renderApiResponse(response);
         confirmDeleteModal.style.display = 'none';
     });
 
     cancelDeleteButton.addEventListener('click', () => {
         confirmDeleteModal.style.display = 'none';
     });
-
-    closeModal();
 }
 
 document.getElementById("close-confirm-delete-modal").addEventListener("click", () => {
@@ -279,4 +266,62 @@ document.getElementById("close-confirm-delete-modal").addEventListener("click", 
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.style.display = 'none';
+}
+
+async function getAllPhones() {
+    try {
+        const response = await fetch('http://localhost:3000/api/smartphones');
+        const phones = await response.json();
+        return phones;
+    } catch (error) {
+        console.error('Error fetching phones', error);
+        return [];
+    }
+}
+
+async function addPhone(newPhoneData) {
+    try {
+        const response = await fetch('http://localhost:3000/api/smartphones', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newPhoneData),
+        });
+        const addedPhone = await response.json();
+        return addedPhone;
+    } catch (error) {
+        console.error('Error adding phone', error);
+        return null;
+    }
+}
+
+async function updatePhone(phoneId, updatedPhoneData) {
+    try {
+        const response = await fetch(`http://localhost:3000/api/smartphones/${phoneId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedPhoneData),
+        });
+        const updatedPhone = await response.json();
+        return updatedPhone;
+    } catch (error) {
+        console.error('Error updating phone', error);
+        return null;
+    }
+}
+
+async function deletePhone(phoneId) {
+    try {
+        const response = await fetch(`http://localhost:3000/api/smartphones/${phoneId}`, {
+            method: 'DELETE',
+        });
+        const deletedPhone = await response.json();
+        return deletedPhone;
+    } catch (error) {
+        console.error('Error deleting phone', error);
+        return null;
+    }
 }
